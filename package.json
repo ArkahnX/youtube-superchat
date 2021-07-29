@@ -1,0 +1,34 @@
+{
+	"name": "project-scythe",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"tsbuild": "tsc -p tsconfig.json && node js-appender.js ./build",
+		"test": "http-server ./"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Ruby-Reds/Project-Scythe.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Ruby-Reds/Project-Scythe/issues"
+	},
+	"homepage": "https://github.com/Ruby-Reds/Project-Scythe#readme",
+	"dependencies": {
+		"phaser": "^3.55.2"
+	},
+	"devDependencies": {
+		"@tsconfig/recommended": "^1.0.1",
+		"@typescript-eslint/eslint-plugin": "^4.28.4",
+		"@typescript-eslint/parser": "^4.28.4",
+		"eslint": "^7.31.0",
+		"eslint-config-prettier": "^6.15.0",
+		"eslint-plugin-prettier": "^3.4.0",
+		"prettier": "^2.3.2",
+		"ts-loader": "^9.2.3",
+		"typescript": "^4.3.5"
+	}
+}
