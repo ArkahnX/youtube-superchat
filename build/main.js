@@ -69,6 +69,19 @@ function toggleSuperchatColors() {
         }
     }
 }
+function truncateString(myString, strLength) {
+    if (myString.length > strLength) {
+        if (strLength <= 3) {
+            return myString.slice(0, strLength - 3) + "...";
+        }
+        else {
+            return myString.slice(0, strLength) + "...";
+        }
+    }
+    else {
+        return myString;
+    }
+}
 function calculate() {
     clearTimeout(timer);
     toggleSuperchatColors();
@@ -76,6 +89,11 @@ function calculate() {
     const textdata = document.getElementById("textdata");
     if (textInput && textdata) {
         timer = window.setTimeout(function () {
+            console.log(textInput.innerText.length, textInput.innerText);
+            if (textInput.innerText.length > 1000) {
+                textInput.innerText = truncateString(textInput.innerText, 1000);
+            }
+            console.log(textInput.innerText.length, textInput.innerText);
             const values = getSelectedSuperchatOptions();
             const textLength = textInput.innerText.length;
             const options = getSubsets(values, textLength);
