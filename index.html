@@ -2,32 +2,30 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>Phaser Template</title>
 
-    <style>
-      html,
-      body,
-      #game-container {
-        margin: 0;
-        padding: 0;
-      }
-
-      #game-container {
-        min-width: 100vw;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #game-container > canvas {
-        border-radius: 5px;
-      }
-    </style>
+		<link rel="stylesheet" href="src/style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
 	</head>
 	<body>
+		<div id="superchattext">
+			<div id="superchatvalues"></div>
+			<div class="none superchat-card">
+				<div class="header">Instructions of sorts</div>
+				<div class="contents">
+					Choose which superchats you want to include or exclude, and enter your message. For now, use spaces
+					to pad your message so it breaks at the desired character.
+				</div>
+			</div>
+			<div class="none superchat-card">
+				<div class="header">Enter your superchat here</div>
+				<div class="contents" id="superchattextbox"></div>
+			</div>
+		</div>
 		<div id="main"></div>
 		<script src="build/main.js" type="module"></script>
 	</body>

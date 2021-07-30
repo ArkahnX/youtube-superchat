@@ -1,0 +1,113 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+	color: #fff;
+	background: #181818;
+	font-family: "Roboto", Arial, sans-serif;
+	font-size: 15px;
+}
+#superchattext,
+#superchatvalues {
+	background: rgba(33, 33, 33, 0.98);
+}
+.superchat-card {
+	border-radius: 4px;
+	display: inline-block;
+	margin: 4px 24px;
+	box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px,
+		rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+	max-width: 350px;
+}
+.superchat-card .contents {
+	padding: 8px 16px;
+	display: flex;
+	word-wrap: break-word;
+	word-break: break-word;
+}
+.superchat-card input[type="text"],
+.textbox {
+	background-color: rgb(18, 18, 18);
+	border: 2px solid rgb(48, 48, 48);
+	box-shadow: rgba(0, 0, 0, 0) 0px 1px 2px 0px inset;
+	color: #fff;
+	padding: 2px 6px;
+	margin: 2px 6px;
+	width: 50px;
+}
+.textarea {
+	display: block;
+	width: 100%;
+	overflow: hidden;
+	resize: both;
+	min-height: 40px;
+	line-height: 20px;
+	background-color: rgb(18, 18, 18);
+	border: 2px solid rgb(48, 48, 48);
+	box-shadow: rgba(0, 0, 0, 0) 0px 1px 2px 0px inset;
+	color: #fff;
+	padding: 2px 6px;
+	margin: 2px 6px;
+}
+.textarea[contenteditable]:empty::before {
+	content: "Placeholder still possible";
+	color: gray;
+}
+.superchat-card .header {
+	user-select: none;
+	text-align: center;
+	padding: 8px 16px;
+	font-weight: 500;
+}
+.none {
+	background: rgba(255, 255, 255, 0.1);
+	border: 2px solid rgba(255, 255, 255, 0.1);
+}
+.none .header {
+	background: rgba(255, 255, 255, 0.1);
+}
+.aka {
+	background: #e62117;
+	border: 2px solid #d00000;
+}
+.aka .header {
+	background: #d00000;
+}
+.fifty {
+	background: #e91e63;
+	border: 2px solid #c2185b;
+}
+.fifty .header {
+	background: #c2185b;
+}
+.twenty {
+	background: #f57c00;
+	border: 2px solid #e65100;
+}
+.twenty .header {
+	background: #e65100;
+}
+.ten {
+	background: #ffca28;
+	border: 2px solid #ffb300;
+	color: #000;
+}
+.ten .header {
+	background: #ffb300;
+}
+.five {
+	background: #1de9b6;
+	border: 2px solid #00bfa5;
+	color: #000;
+}
+.five .header {
+	background: #00bfa5;
+}
+.two {
+	background: #00e5ff;
+	border: 2px solid #00b8d4;
+	color: #000;
+}
+.two .header {
+	background: #00b8d4;
+}
