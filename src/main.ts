@@ -1,31 +1,31 @@
 /* eslint-disable @typescript-eslint/typedef */
 "use strict";
 
-const limit = [350, 330, 310, 290, 270, 250, 225, 200, 150, 50];
-const prices = [500, 400, 300, 200, 100, 50, 20, 10, 5, 2];
+const limit: number[] = [350, 330, 310, 290, 270, 250, 225, 200, 150, 50];
+const prices: number[] = [500, 400, 300, 200, 100, 50, 20, 10, 5, 2];
 
 // https://stackoverflow.com/questions/53659151/return-all-subsets-whose-sum-is-a-given-value-subset-sum-problem
 document.addEventListener("DOMContentLoaded", function () {
-	const textInput = document.createElement("span");
+	const textInput: HTMLSpanElement = document.createElement("span");
 	textInput.setAttribute("class", "textarea");
 	textInput.setAttribute("id", "textinput");
 	textInput.setAttribute("maxlength", "1000");
 	textInput.setAttribute("contenteditable", "true");
 	textInput.innerText = "This is a sample superchat message! Lorem Ipsum... This will appear in a new $2 superchat.";
-	const textData = document.createElement("div");
+	const textData: HTMLDivElement = document.createElement("div");
 	textData.setAttribute("id", "textdata");
-	const superChatValues = document.getElementById("superchatvalues");
-	const superchattextbox = document.getElementById("superchattextbox");
-	const mainElement = document.getElementById("main");
+	const superChatValues: HTMLElement | null = document.getElementById("superchatvalues");
+	const superchattextbox: HTMLElement | null = document.getElementById("superchattextbox");
+	const mainElement: HTMLElement | null = document.getElementById("main");
 	textInput.addEventListener("keyup", calculate);
 
 	// superChatSelect.addEventListener("change", calculate);
 	for (const [key, value] of prices.entries()) {
-		const optionElement = document.createElement("input");
-		const superchatElement = document.createElement("div");
-		const spanElement = document.createElement("span");
-		const labelElement = document.createElement("label");
-		const inputElement = document.createElement("input");
+		const optionElement: HTMLInputElement = document.createElement("input");
+		const superchatElement: HTMLDivElement = document.createElement("div");
+		const spanElement: HTMLSpanElement = document.createElement("span");
+		const labelElement: HTMLLabelElement = document.createElement("label");
+		const inputElement: HTMLInputElement = document.createElement("input");
 		labelElement.innerText = `$${value}`;
 		spanElement.appendChild(labelElement);
 		labelElement.appendChild(inputElement);
@@ -50,11 +50,12 @@ document.addEventListener("DOMContentLoaded", function () {
 		superchattextbox.appendChild(textInput);
 		mainElement.appendChild(textData);
 	}
+	calculate();
 });
 let timer = -1;
 
 function toggleSuperchatColors() {
-	const superChatValues = document.getElementById("superchatvalues");
+	const superChatValues: HTMLElement | null = document.getElementById("superchatvalues");
 	if (superChatValues) {
 		for (let index = 0; index < superChatValues?.children.length; index++) {
 			const element = superChatValues?.children[index];
@@ -84,22 +85,22 @@ function toggleSuperchatColors() {
 function calculate() {
 	clearTimeout(timer);
 	toggleSuperchatColors();
-	const textInput = document.getElementById("textinput");
-	const textdata = document.getElementById("textdata");
+	const textInput: HTMLElement | null = document.getElementById("textinput");
+	const textdata: HTMLElement | null = document.getElementById("textdata");
 	if (textInput && textdata) {
 		timer = window.setTimeout(function () {
-			const values = getSelectedSuperchatOptions();
-			const textLength = textInput.innerText.length;
+			const values: number[] = getSelectedSuperchatOptions();
+			const textLength: number = textInput.innerText.length;
 			// console.log(textLength);
-			const options = getSubsets(values, textLength);
-			const fragment = document.createDocumentFragment();
+			const options: number[][] = getSubsets(values, textLength);
+			const fragment: DocumentFragment = document.createDocumentFragment();
 			for (const option of options) {
-				let remainingText = textInput.innerText;
-				let price = 0;
+				let remainingText: string = textInput.innerText;
+				let price: number = 0;
 				fragment.appendChild(document.createElement("hr"));
-				const superchatElement = document.createElement("div");
-				const superchatHeaderElement = document.createElement("div");
-				const superChatStatsElement = document.createElement("div");
+				const superchatElement: HTMLDivElement = document.createElement("div");
+				const superchatHeaderElement: HTMLDivElement = document.createElement("div");
+				const superChatStatsElement: HTMLDivElement = document.createElement("div");
 				superchatElement.setAttribute("class", `none superchat-card`);
 				superchatHeaderElement.setAttribute("class", `header`);
 				superChatStatsElement.setAttribute("class", `contents`);
@@ -108,15 +109,17 @@ function calculate() {
 				superchatElement.appendChild(superChatStatsElement);
 				fragment.appendChild(superchatElement);
 				for (const index of option) {
-					const characterLimit = limit[index];
+					const characterLimit: number = limit[index];
 					const superchatvalue: HTMLInputElement = document.getElementById(`sc_${index}`) as HTMLInputElement;
 					if (superchatvalue) {
-						const dollarValue = superchatvalue.value;
-						const message = remainingText.match(new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"));
+						const dollarValue: string = superchatvalue.value;
+						const message: RegExpMatchArray | null = remainingText.match(
+							new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"),
+						);
 						if (message && message[0]) {
-							const superchatElement = document.createElement("div");
-							const superchatHeaderElement = document.createElement("div");
-							const preElement = document.createElement("div");
+							const superchatElement: HTMLDivElement = document.createElement("div");
+							const superchatHeaderElement: HTMLDivElement = document.createElement("div");
+							const preElement: HTMLDivElement = document.createElement("div");
 							superchatElement.setAttribute("class", `${superchatTier(index)} superchat-card`);
 							superchatHeaderElement.setAttribute("class", `header`);
 							preElement.setAttribute("class", `contents`);
@@ -140,8 +143,8 @@ function calculate() {
 	}
 }
 
-function superchatTier(index: number | undefined) {
-	if (!index) {
+function superchatTier(index: number | undefined): string {
+	if (typeof index !== "number") {
 		return "none";
 	}
 	if (index < 5) {
@@ -165,8 +168,8 @@ function superchatTier(index: number | undefined) {
 	return "none";
 }
 
-function getSelectedSuperchatOptions() {
-	const values = [];
+function getSelectedSuperchatOptions(): number[] {
+	const values: number[] = [];
 	for (const [key] of prices.entries()) {
 		const superchatCheckbox: HTMLInputElement = document.getElementById(`sco_${key}`) as HTMLInputElement;
 		if (superchatCheckbox) {
@@ -230,6 +233,3 @@ function getSubsets(array: number[], sum: number) {
 	// console.log(result);
 	return result;
 }
-
-// console.log(getSubsets(limit, 51));
-calculate();
