@@ -18,7 +18,7 @@ body {
 .superchat-card {
 	border-radius: 4px;
 	display: inline-block;
-	margin: 4px 24px;
+	margin: 4px 12px;
 	box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px,
 		rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
 	max-width: 350px;
@@ -41,7 +41,7 @@ body {
 }
 .textarea {
 	display: block;
-	width: 100%;
+	width: 22em;
 	overflow-y: scroll;
 	resize: both;
 	min-height: 40px;
@@ -52,7 +52,7 @@ body {
 	color: #fff;
 	padding: 2px 6px;
 	margin: 2px 6px;
-	max-height: 200px;
+	height: 11em;
 }
 .textarea[contenteditable]:empty::before {
 	content: "Placeholder still possible";

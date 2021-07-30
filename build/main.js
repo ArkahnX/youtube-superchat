@@ -1,12 +1,13 @@
 "use strict";
 const limit = [350, 330, 310, 290, 270, 250, 225, 200, 150, 50];
 const prices = [500, 400, 300, 200, 100, 50, 20, 10, 5, 2];
+limit.reverse();
+prices.reverse();
 document.addEventListener("DOMContentLoaded", function () {
-    const textInput = document.createElement("span");
+    const textInput = document.createElement("textarea");
     textInput.setAttribute("class", "textarea");
     textInput.setAttribute("id", "textinput");
-    textInput.setAttribute("maxlength", "1000");
-    textInput.setAttribute("contenteditable", "true");
+    textInput.setAttribute("maxlength", "10000");
     textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
     const textData = document.createElement("div");
     textData.setAttribute("id", "textdata");
@@ -45,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
         mainElement.appendChild(textData);
     }
     calculate();
+    window.requestAnimationFrame(getSuperChatStats);
 });
 let timer = -1;
 function toggleSuperchatColors() {
@@ -69,18 +71,37 @@ function toggleSuperchatColors() {
         }
     }
 }
-function truncateString(myString, strLength) {
-    if (myString.length > strLength) {
-        if (strLength <= 3) {
-            return myString.slice(0, strLength - 3) + "...";
-        }
-        else {
-            return myString.slice(0, strLength) + "...";
+function getSuperChatStats() {
+    const textInput = document.getElementById("textinput");
+    const superStats = document.getElementById("superstats");
+    if (textInput && superStats) {
+        const cursorPosition = textInput.selectionStart;
+        const splitString = stripNewLines(textInput.value).split("|");
+        let index = 0;
+        for (const string of splitString) {
+            if (cursorPosition >= index && cursorPosition <= index + string.length) {
+                const SCLength = string.length;
+                const SCLimitKey = findSuperchatLimitKey(SCLength);
+                let warning = "";
+                const superchatvalue = document.getElementById(`sc_${SCLimitKey}`);
+                if (superchatvalue) {
+                    const SCLimit = limit[SCLimitKey];
+                    if (SCLength > SCLimit) {
+                        warning = "Superchat is too long! Consider splitting it with |";
+                    }
+                    superStats.innerText = `Cost: $${superchatvalue.value}
+					Characters: ${SCLength}/${SCLimit}
+					${warning}`;
+                }
+                window.requestAnimationFrame(getSuperChatStats);
+                return true;
+            }
+            else {
+                index += string.length + 1;
+            }
         }
     }
-    else {
-        return myString;
-    }
+    window.requestAnimationFrame(getSuperChatStats);
 }
 function calculate() {
     clearTimeout(timer);
@@ -88,89 +109,103 @@ function calculate() {
     const textInput = document.getElementById("textinput");
     const textdata = document.getElementById("textdata");
     if (textInput && textdata) {
+        if (textInput.value.length > 0) {
+            getSuperChatStats();
+        }
         timer = window.setTimeout(function () {
-            if (textInput.innerText.length > 1000) {
-                textInput.innerText = truncateString(textInput.innerText, 1000);
-            }
             const values = getSelectedSuperchatOptions();
-            const textLength = textInput.innerText.length;
-            const options = getSubsets(values, textLength);
-            mergeOptions(values, textInput.innerText);
             const fragment = document.createDocumentFragment();
-            for (const option of options) {
-                let remainingText = textInput.innerText;
-                let price = 0;
-                fragment.appendChild(document.createElement("hr"));
-                const superchatElement = document.createElement("div");
-                const superchatHeaderElement = document.createElement("div");
-                const superChatStatsElement = document.createElement("div");
-                superchatElement.setAttribute("class", `none superchat-card`);
-                superchatHeaderElement.setAttribute("class", `header`);
-                superChatStatsElement.setAttribute("class", `contents`);
-                superchatHeaderElement.innerText = `Stats`;
-                superchatElement.appendChild(superchatHeaderElement);
-                superchatElement.appendChild(superChatStatsElement);
-                fragment.appendChild(superchatElement);
-                for (const index of option) {
-                    const characterLimit = limit[index];
-                    const superchatvalue = document.getElementById(`sc_${index}`);
-                    if (superchatvalue) {
-                        const dollarValue = superchatvalue.value;
-                        let message = [];
-                        if (remainingText.indexOf("|") <= characterLimit) {
-                            message = [
-                                remainingText.slice(0, remainingText.indexOf("|")),
-                                remainingText.slice(1 + remainingText.indexOf("|")),
-                            ];
-                        }
-                        else {
-                            message = remainingText.match(new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"));
-                        }
-                        if (message && message[0]) {
-                            const superchatElement = document.createElement("div");
-                            const superchatHeaderElement = document.createElement("div");
-                            const preElement = document.createElement("div");
-                            superchatElement.setAttribute("class", `${superchatTier(index)} superchat-card`);
-                            superchatHeaderElement.setAttribute("class", `header`);
-                            preElement.setAttribute("class", `contents`);
-                            superchatHeaderElement.innerText = `$${dollarValue} \t (${message[0].length}/${limit[index]})`;
-                            preElement.innerText = message[0];
-                            superchatElement.appendChild(superchatHeaderElement);
-                            superchatElement.appendChild(preElement);
-                            fragment.appendChild(superchatElement);
-                            message[0] = "";
-                            remainingText = message.join("");
-                            price += prices[index];
+            const split = stripNewLines(textInput.value).split("|");
+            let price = 0;
+            const superchatElement = document.createElement("div");
+            const superchatHeaderElement = document.createElement("div");
+            const superChatStatsElement = document.createElement("div");
+            superchatElement.setAttribute("class", `none superchat-card`);
+            superchatHeaderElement.setAttribute("class", `header`);
+            superChatStatsElement.setAttribute("class", `contents`);
+            superchatHeaderElement.innerText = `Stats`;
+            superchatElement.appendChild(superchatHeaderElement);
+            superchatElement.appendChild(superChatStatsElement);
+            fragment.appendChild(superchatElement);
+            let SCIndex = 0;
+            for (const splitText of split) {
+                const options = getSubsets(values, splitText.length);
+                for (const option of options) {
+                    for (const index of option) {
+                        SCIndex++;
+                        let remainingText = splitText;
+                        const characterLimit = limit[index];
+                        const superchatvalue = document.getElementById(`sc_${index}`);
+                        if (superchatvalue) {
+                            const dollarValue = superchatvalue.value;
+                            let message = [];
+                            if (remainingText.indexOf("|") <= characterLimit && remainingText.indexOf("|") > -1) {
+                                message = [
+                                    remainingText.slice(0, remainingText.indexOf("|")).trim(),
+                                    remainingText.slice(1 + remainingText.indexOf("|")).trim(),
+                                ];
+                            }
+                            else {
+                                message = remainingText.match(new RegExp(`(.){1,${characterLimit}}`, "g"));
+                            }
+                            if (message && message[0]) {
+                                const superchatElement = document.createElement("div");
+                                const superchatHeaderElement = document.createElement("div");
+                                const preElement = document.createElement("div");
+                                superchatElement.setAttribute("class", `${superchatTier(index)} superchat-card`);
+                                superchatHeaderElement.setAttribute("class", `header`);
+                                preElement.setAttribute("class", `contents`);
+                                superchatHeaderElement.innerText = `#${SCIndex} $${dollarValue} \t (${message[0].length}/${limit[index]})`;
+                                preElement.innerText = message[0];
+                                superchatElement.appendChild(superchatHeaderElement);
+                                superchatElement.appendChild(preElement);
+                                fragment.appendChild(superchatElement);
+                                message[0] = "";
+                                remainingText = message.join("");
+                                price += prices[index];
+                            }
                         }
                     }
                 }
-                superChatStatsElement.innerText = `Cost: ${price}, Characters: ${textInput.innerText.length}`;
+                superChatStatsElement.innerText = `Cost: ${price}, Characters: ${stripNewLines(textInput.value).length}`;
             }
             textdata.innerText = "";
             textdata.appendChild(fragment);
         }, 300);
     }
 }
+function stripNewLines(string) {
+    return string.replace(/\r?\n/g, "");
+}
+function findSuperchatLimitKey(length) {
+    const values = getSelectedSuperchatOptions();
+    for (const value of values) {
+        if (length < value) {
+            return limit.indexOf(value);
+        }
+    }
+    return limit.indexOf(values[values.length - 1]);
+}
 function superchatTier(index) {
     if (typeof index !== "number") {
         return "none";
     }
-    if (index < 5) {
+    if (index > 4) {
         return "aka";
     }
-    if (index === 5) {
+    if (index === 4) {
         return "fifty";
     }
-    if (index === 6) {
+    if (index === 3) {
         return "twenty";
     }
-    if (index === 7) {
+    if (index === 2) {
         return "ten";
     }
-    if (index === 8) {
+    if (index === 1) {
         return "five";
     }
-    if (index === 9) {
+    if (index === 0) {
         return "two";
     }
     return "none";
@@ -187,29 +222,17 @@ function getSelectedSuperchatOptions() {
     }
     return values;
 }
-function mergeOptions(values, text) {
-    const split = text.split("|");
-    const results = [];
-    for (const splitString of split) {
-        results.push(getSubsets(values, splitString.length));
-    }
-    console.log(results);
-}
 function getSubsets(array, sum) {
     function fork(index = 0, s = 0, temp = []) {
-        if (s >= sum) {
+        if (s === sum) {
             result.push(temp);
             return;
         }
         if (index === array.length) {
             return;
         }
-        if (s + array[index] <= sum) {
-            fork(index, s + array[index], temp.concat(limit.indexOf(array[index])));
-        }
         if (s + array[index] >= sum) {
             result.push(temp.concat(limit.indexOf(array[index])));
-            fork(index + 1, s, temp);
             return;
         }
         fork(index + 1, s, temp);
