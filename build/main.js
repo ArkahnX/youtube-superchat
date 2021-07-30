@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     textInput.setAttribute("id", "textinput");
     textInput.setAttribute("maxlength", "1000");
     textInput.setAttribute("contenteditable", "true");
-    textInput.innerText = "This is a sample superchat message! Lorem Ipsum... This will appear in a new $2 superchat.";
+    textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
     const textData = document.createElement("div");
     textData.setAttribute("id", "textdata");
     const superChatValues = document.getElementById("superchatvalues");
@@ -95,6 +95,7 @@ function calculate() {
             const values = getSelectedSuperchatOptions();
             const textLength = textInput.innerText.length;
             const options = getSubsets(values, textLength);
+            mergeOptions(values, textInput.innerText);
             const fragment = document.createDocumentFragment();
             for (const option of options) {
                 let remainingText = textInput.innerText;
@@ -115,7 +116,16 @@ function calculate() {
                     const superchatvalue = document.getElementById(`sc_${index}`);
                     if (superchatvalue) {
                         const dollarValue = superchatvalue.value;
-                        const message = remainingText.match(new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"));
+                        let message = [];
+                        if (remainingText.indexOf("|") <= characterLimit) {
+                            message = [
+                                remainingText.slice(0, remainingText.indexOf("|")),
+                                remainingText.slice(1 + remainingText.indexOf("|")),
+                            ];
+                        }
+                        else {
+                            message = remainingText.match(new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"));
+                        }
                         if (message && message[0]) {
                             const superchatElement = document.createElement("div");
                             const superchatHeaderElement = document.createElement("div");
@@ -176,6 +186,14 @@ function getSelectedSuperchatOptions() {
         }
     }
     return values;
+}
+function mergeOptions(values, text) {
+    const split = text.split("|");
+    const results = [];
+    for (const splitString of split) {
+        results.push(getSubsets(values, splitString.length));
+    }
+    console.log(results);
 }
 function getSubsets(array, sum) {
     function fork(index = 0, s = 0, temp = []) {

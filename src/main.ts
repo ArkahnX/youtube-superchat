@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	textInput.setAttribute("id", "textinput");
 	textInput.setAttribute("maxlength", "1000");
 	textInput.setAttribute("contenteditable", "true");
-	textInput.innerText = "This is a sample superchat message! Lorem Ipsum... This will appear in a new $2 superchat.";
+	textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
 	const textData: HTMLDivElement = document.createElement("div");
 	textData.setAttribute("id", "textdata");
 	const superChatValues: HTMLElement | null = document.getElementById("superchatvalues");
@@ -108,6 +108,7 @@ function calculate() {
 			const textLength: number = textInput.innerText.length;
 			// console.log(textLength);
 			const options: number[][] = getSubsets(values, textLength);
+			mergeOptions(values, textInput.innerText);
 			const fragment: DocumentFragment = document.createDocumentFragment();
 			for (const option of options) {
 				let remainingText: string = textInput.innerText;
@@ -128,9 +129,17 @@ function calculate() {
 					const superchatvalue: HTMLInputElement = document.getElementById(`sc_${index}`) as HTMLInputElement;
 					if (superchatvalue) {
 						const dollarValue: string = superchatvalue.value;
-						const message: RegExpMatchArray | null = remainingText.match(
-							new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"),
-						);
+						let message: string[] = [];
+						if (remainingText.indexOf("|") <= characterLimit) {
+							message = [
+								remainingText.slice(0, remainingText.indexOf("|")),
+								remainingText.slice(1 + remainingText.indexOf("|")),
+							];
+						} else {
+							message = remainingText.match(
+								new RegExp(`(.|[\r\n]){1,${characterLimit}}`, "g"),
+							) as string[];
+						}
 						if (message && message[0]) {
 							const superchatElement: HTMLDivElement = document.createElement("div");
 							const superchatHeaderElement: HTMLDivElement = document.createElement("div");
@@ -198,6 +207,15 @@ function getSelectedSuperchatOptions(): number[] {
 }
 
 // add termination condition, if s > 0?
+
+function mergeOptions(values: number[], text: string) {
+	const split: string[] = text.split("|");
+	const results: number[][][] = [];
+	for (const splitString of split) {
+		results.push(getSubsets(values, splitString.length));
+	}
+	console.log(results);
+}
 
 function getSubsets(array: number[], sum: number) {
 	function fork(index = 0, s = 0, temp: number[] = []) {
