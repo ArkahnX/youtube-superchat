@@ -89,11 +89,9 @@ function calculate() {
     const textdata = document.getElementById("textdata");
     if (textInput && textdata) {
         timer = window.setTimeout(function () {
-            console.log(textInput.innerText.length, textInput.innerText);
             if (textInput.innerText.length > 1000) {
                 textInput.innerText = truncateString(textInput.innerText, 1000);
             }
-            console.log(textInput.innerText.length, textInput.innerText);
             const values = getSelectedSuperchatOptions();
             const textLength = textInput.innerText.length;
             const options = getSubsets(values, textLength);
