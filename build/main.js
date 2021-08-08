@@ -17,16 +17,19 @@ document.addEventListener("DOMContentLoaded", function () {
     textInput.addEventListener("keyup", calculate);
     for (const [key, value] of prices.entries()) {
         const optionElement = document.createElement("input");
+        const optionElementUI = document.createElement("span");
         const superchatElement = document.createElement("div");
         const spanElement = document.createElement("span");
         const labelElement = document.createElement("label");
         const inputElement = document.createElement("input");
         labelElement.innerText = `$${value}`;
         spanElement.appendChild(labelElement);
-        labelElement.appendChild(inputElement);
+        spanElement.appendChild(inputElement);
         inputElement.setAttribute("id", `sc_${key}`);
         superchatElement.setAttribute("data-superchat-id", `${key}`);
         superchatElement.setAttribute("class", `${superchatTier(key)} superchat-card`);
+        console.log(superchatElement, `${superchatTier(key)} superchat-card`);
+        labelElement.setAttribute("class", `container`);
         spanElement.setAttribute("class", `contents`);
         inputElement.setAttribute("value", `${value}`);
         inputElement.setAttribute("type", "text");
@@ -34,8 +37,11 @@ document.addEventListener("DOMContentLoaded", function () {
         optionElement.setAttribute("checked", "true");
         optionElement.setAttribute("id", `sco_${key}`);
         optionElement.setAttribute("type", "checkbox");
+        optionElementUI.setAttribute("class", "checkmark");
         optionElement.addEventListener("change", calculate);
-        spanElement.appendChild(optionElement);
+        inputElement.addEventListener("keyup", calculate);
+        labelElement.appendChild(optionElement);
+        labelElement.appendChild(optionElementUI);
         superchatElement.appendChild(spanElement);
         if (superChatValues) {
             superChatValues.appendChild(superchatElement);
@@ -54,7 +60,7 @@ function toggleSuperchatColors() {
     if (superChatValues) {
         for (let index = 0; index < superChatValues?.children.length; index++) {
             const element = superChatValues?.children[index];
-            const option = element.children[0].children[1];
+            const option = element.children[0].children[0].children[0];
             const superChatId = element.getAttribute("data-superchat-id");
             let superChatTier = "";
             if (typeof superChatId === "string") {
@@ -162,12 +168,12 @@ function calculate() {
                                 fragment.appendChild(superchatElement);
                                 message[0] = "";
                                 remainingText = message.join("");
-                                price += prices[index];
+                                price += parseInt(dollarValue, 10);
                             }
                         }
                     }
                 }
-                superChatStatsElement.innerText = `Cost: ${price}, Characters: ${stripNewLines(textInput.value).length}`;
+                superChatStatsElement.innerText = `Cost: $${price}, Characters: ${stripNewLines(textInput.value).length}`;
             }
             textdata.innerText = "";
             textdata.appendChild(fragment);
