@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
         inputElement.setAttribute("id", `sc_${key}`);
         superchatElement.setAttribute("data-superchat-id", `${key}`);
         superchatElement.setAttribute("class", `${superchatTier(key)} superchat-card`);
-        console.log(superchatElement, `${superchatTier(key)} superchat-card`);
         labelElement.setAttribute("class", `container`);
         spanElement.setAttribute("class", `contents`);
         inputElement.setAttribute("value", `${value}`);
