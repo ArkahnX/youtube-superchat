@@ -8,17 +8,24 @@ prices.reverse();
 
 // https://stackoverflow.com/questions/53659151/return-all-subsets-whose-sum-is-a-given-value-subset-sum-problem
 document.addEventListener("DOMContentLoaded", function () {
-	const textInput: HTMLSpanElement = document.createElement("textarea");
+	const textInput: HTMLTextAreaElement = document.createElement("textarea");
 	textInput.setAttribute("class", "textarea");
 	textInput.setAttribute("id", "textinput");
+	// textInput.setAttribute("contenteditable", "true");
 	textInput.setAttribute("maxlength", "10000");
-	textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
+	const fancyText: string[] = [
+		"What changed, Nov 25th edition",
+		"improved layout for small screens, added a button to copy superchat text",
+	];
+	// textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
+	textInput.innerHTML = fancyText.join("|");
 	const textData: HTMLDivElement = document.createElement("div");
 	textData.setAttribute("id", "textdata");
 	const superChatValues: HTMLElement | null = document.getElementById("superchatvalues");
 	const superchattextbox: HTMLElement | null = document.getElementById("superchattextbox");
 	const mainElement: HTMLElement | null = document.getElementById("main");
 	textInput.addEventListener("keyup", calculate);
+	mainElement?.addEventListener("mousedown", listenForCopy);
 
 	// superChatSelect.addEventListener("change", calculate);
 	for (const [key, value] of prices.entries()) {
@@ -28,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		const spanElement: HTMLSpanElement = document.createElement("span");
 		const labelElement: HTMLLabelElement = document.createElement("label");
 		const inputElement: HTMLInputElement = document.createElement("input");
-		labelElement.innerText = `$${value}`;
+		labelElement.innerText = `$`;
 		spanElement.appendChild(labelElement);
 		spanElement.appendChild(inputElement);
 		inputElement.setAttribute("id", `sc_${key}`);
@@ -60,6 +67,19 @@ document.addEventListener("DOMContentLoaded", function () {
 	window.requestAnimationFrame(getSuperChatStats);
 });
 let timer = -1;
+
+async function listenForCopy(event: MouseEvent) {
+	if (event.target instanceof Element && event.target.className.includes("copy")) {
+		const target: HTMLSpanElement = event.target as HTMLSpanElement; // assert type
+		const parentNode: HTMLDivElement | null = target.parentNode?.parentNode as HTMLDivElement; // .superchat-card
+		const contentNode: HTMLDivElement = parentNode.querySelector(".contents") as HTMLDivElement;
+		if (contentNode) {
+			console.log(typeof contentNode.innerText, contentNode.innerText);
+			await copyTextToClipboard(contentNode.innerText);
+			target.innerText = "Copied!";
+		}
+	}
+}
 
 function toggleSuperchatColors() {
 	const superChatValues: HTMLElement | null = document.getElementById("superchatvalues");
@@ -101,11 +121,68 @@ function toggleSuperchatColors() {
 // 	}
 // }
 
+// function getCaretCharacterOffsetWithin(element: any) {
+// 	let caretOffset = 0;
+// 	const doc = element.ownerDocument || element.document;
+// 	const win = doc.defaultView || doc.parentWindow;
+// 	let sel;
+// 	if (typeof win.getSelection != "undefined") {
+// 		sel = win.getSelection();
+// 		if (sel.rangeCount > 0) {
+// 			const range = win.getSelection().getRangeAt(0);
+// 			const preCaretRange = range.cloneRange();
+// 			preCaretRange.selectNodeContents(element);
+// 			preCaretRange.setEnd(range.endContainer, range.endOffset);
+// 			caretOffset = preCaretRange.toString().length;
+// 		}
+// 	} else if ((sel = doc.selection) && sel.type != "Control") {
+// 		const textRange = sel.createRange();
+// 		const preCaretTextRange = doc.body.createTextRange();
+// 		preCaretTextRange.moveToElementText(element);
+// 		preCaretTextRange.setEndPoint("EndToEnd", textRange);
+// 		caretOffset = preCaretTextRange.text.length;
+// 	}
+// 	return caretOffset;
+// }
+
+// function getCaretSuperchatIndex() {
+// 	const textInput: HTMLDivElement | null = document.getElementById("textinput") as HTMLDivElement;
+// 	const splitString = stripNewLines(textInput.innerText).split("|");
+// 	const cursorPosition = getCaretCharacterOffsetWithin(textInput);
+// 	let childIndex = 0;
+// 	let position = cursorPosition;
+// 	let index = 0;
+// 	for (const string of splitString) {
+// 		if (cursorPosition >= index && cursorPosition <= index + string.length) {
+// 		} else {
+// 			position = position - string.length - 1;
+// 			index += string.length + 1; //+1 for the now missing separator
+// 			childIndex++;
+// 		}
+// 	}
+// 	return { childIndex, position };
+// }
+
 function getSuperChatStats() {
 	const textInput: HTMLTextAreaElement | null = document.getElementById("textinput") as HTMLTextAreaElement;
 	const superStats: HTMLElement | null = document.getElementById("superstats");
 	if (textInput && superStats) {
 		const cursorPosition = textInput.selectionStart;
+		// const cursorPosition = getCaretCharacterOffsetWithin(textInput);
+		// for (const child of Array.from(textInput.children)) {
+		// 	child.classList.remove("active");
+		// 	child.classList.add("inactive");
+		// }
+		// try {
+		// 	const range = window?.getSelection()?.getRangeAt(0) as any;
+		// 	const ancestor = range?.commonAncestorContainer.parentNode;
+		// 	if (ancestor && ancestor.classList.contains("part")) {
+		// 		ancestor.classList.remove("inactive");
+		// 		ancestor.classList.add("active");
+		// 	}
+		// } catch (e) {
+		// 	// console.error(e);
+		// }
 		// console.log(cursorPosition);
 		const splitString = stripNewLines(textInput.value).split("|");
 		let index = 0;
@@ -143,7 +220,7 @@ function calculate() {
 	const textInput: HTMLTextAreaElement | null = document.getElementById("textinput") as HTMLTextAreaElement;
 	const textdata: HTMLElement | null = document.getElementById("textdata");
 	if (textInput && textdata) {
-		if (textInput.value.length > 0) {
+		if (textInput.innerText.length > 0) {
 			getSuperChatStats();
 		}
 		timer = window.setTimeout(function () {
@@ -169,7 +246,9 @@ function calculate() {
 			superchatElement.appendChild(superChatStatsElement);
 			fragment.appendChild(superchatElement);
 			let SCIndex = 0;
+			const fancyText = [];
 			for (const splitText of split) {
+				fancyText.push(`${splitText}`);
 				const options: number[][] = getSubsets(values, splitText.length);
 				for (const option of options) {
 					for (const index of option) {
@@ -193,12 +272,21 @@ function calculate() {
 							if (message && message[0]) {
 								const superchatElement: HTMLDivElement = document.createElement("div");
 								const superchatHeaderElement: HTMLDivElement = document.createElement("div");
+								const superchatHeaderLeftElement: HTMLSpanElement = document.createElement("span");
+								const superchatHeaderRightElement: HTMLSpanElement = document.createElement("span");
 								const preElement: HTMLDivElement = document.createElement("div");
 								superchatElement.setAttribute("class", `${superchatTier(index)} superchat-card`);
 								superchatHeaderElement.setAttribute("class", `header`);
+								superchatHeaderLeftElement.setAttribute("class", `left`);
+								superchatHeaderRightElement.setAttribute("class", `right copy`);
 								preElement.setAttribute("class", `contents`);
-								superchatHeaderElement.innerText = `#${SCIndex} $${dollarValue} \t (${message[0].length}/${limit[index]})`;
+								superchatHeaderLeftElement.innerText = `#${SCIndex} (${message[0].length}/${limit[index]})`;
+								superchatHeaderRightElement.innerText = `Copy`;
+								superchatHeaderElement.innerText = `$${dollarValue}`;
+								// superchatHeaderElement.innerText = `#${SCIndex} $${dollarValue} \t (${message[0].length}/${limit[index]})`;
 								preElement.innerText = message[0];
+								superchatHeaderElement.appendChild(superchatHeaderLeftElement);
+								superchatHeaderElement.appendChild(superchatHeaderRightElement);
 								superchatElement.appendChild(superchatHeaderElement);
 								superchatElement.appendChild(preElement);
 								fragment.appendChild(superchatElement);
@@ -215,6 +303,12 @@ function calculate() {
 			}
 			textdata.innerText = "";
 			textdata.appendChild(fragment);
+			// const { childIndex, position } = getCaretSuperchatIndex();
+			// textInput.innerHTML = fancyText.join("|");
+			// textInput.focus();
+			// const selection = document.getSelection();
+			// console.log(position, selection);
+			// document.getSelection()?.collapse(textInput.children[childIndex].childNodes[0], position);
 			// textData.innerText = textLength + "\n" + JSON.stringify(options, null, "\t");
 		}, 300);
 	}
@@ -271,6 +365,44 @@ function getSelectedSuperchatOptions(): number[] {
 	}
 	// console.log(values);
 	return values;
+}
+
+function fallbackCopyTextToClipboard(text: string) {
+	const textArea = document.createElement("textarea");
+	textArea.value = text;
+
+	// Avoid scrolling to bottom
+	textArea.style.top = "0";
+	textArea.style.left = "0";
+	textArea.style.position = "fixed";
+
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+
+	try {
+		const successful = document.execCommand("copy");
+		const msg = successful ? "successful" : "unsuccessful";
+		console.log("Fallback: Copying text command was " + msg);
+	} catch (err) {
+		console.error("Fallback: Oops, unable to copy", err);
+	}
+
+	document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text: string) {
+	if (!navigator.clipboard) {
+		fallbackCopyTextToClipboard(text);
+		return;
+	}
+	navigator.clipboard.writeText(text).then(
+		function () {
+			console.log("Async: Copying to clipboard was successful!");
+		},
+		function (err) {
+			console.error("Async: Could not copy text: ", err);
+		},
+	);
 }
 
 // add termination condition, if s > 0?

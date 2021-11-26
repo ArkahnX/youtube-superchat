@@ -8,13 +8,18 @@ document.addEventListener("DOMContentLoaded", function () {
     textInput.setAttribute("class", "textarea");
     textInput.setAttribute("id", "textinput");
     textInput.setAttribute("maxlength", "10000");
-    textInput.innerText = "This is a sample superchat message!|This will appear in a new superchat.";
+    const fancyText = [
+        "What changed, Nov 25th edition",
+        "improved layout for small screens, added a button to copy superchat text",
+    ];
+    textInput.innerHTML = fancyText.join("|");
     const textData = document.createElement("div");
     textData.setAttribute("id", "textdata");
     const superChatValues = document.getElementById("superchatvalues");
     const superchattextbox = document.getElementById("superchattextbox");
     const mainElement = document.getElementById("main");
     textInput.addEventListener("keyup", calculate);
+    mainElement?.addEventListener("mousedown", listenForCopy);
     for (const [key, value] of prices.entries()) {
         const optionElement = document.createElement("input");
         const optionElementUI = document.createElement("span");
@@ -22,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const spanElement = document.createElement("span");
         const labelElement = document.createElement("label");
         const inputElement = document.createElement("input");
-        labelElement.innerText = `$${value}`;
+        labelElement.innerText = `$`;
         spanElement.appendChild(labelElement);
         spanElement.appendChild(inputElement);
         inputElement.setAttribute("id", `sc_${key}`);
@@ -54,6 +59,18 @@ document.addEventListener("DOMContentLoaded", function () {
     window.requestAnimationFrame(getSuperChatStats);
 });
 let timer = -1;
+async function listenForCopy(event) {
+    if (event.target instanceof Element && event.target.className.includes("copy")) {
+        const target = event.target;
+        const parentNode = target.parentNode?.parentNode;
+        const contentNode = parentNode.querySelector(".contents");
+        if (contentNode) {
+            console.log(typeof contentNode.innerText, contentNode.innerText);
+            await copyTextToClipboard(contentNode.innerText);
+            target.innerText = "Copied!";
+        }
+    }
+}
 function toggleSuperchatColors() {
     const superChatValues = document.getElementById("superchatvalues");
     if (superChatValues) {
@@ -114,7 +131,7 @@ function calculate() {
     const textInput = document.getElementById("textinput");
     const textdata = document.getElementById("textdata");
     if (textInput && textdata) {
-        if (textInput.value.length > 0) {
+        if (textInput.innerText.length > 0) {
             getSuperChatStats();
         }
         timer = window.setTimeout(function () {
@@ -133,7 +150,9 @@ function calculate() {
             superchatElement.appendChild(superChatStatsElement);
             fragment.appendChild(superchatElement);
             let SCIndex = 0;
+            const fancyText = [];
             for (const splitText of split) {
+                fancyText.push(`${splitText}`);
                 const options = getSubsets(values, splitText.length);
                 for (const option of options) {
                     for (const index of option) {
@@ -156,12 +175,20 @@ function calculate() {
                             if (message && message[0]) {
                                 const superchatElement = document.createElement("div");
                                 const superchatHeaderElement = document.createElement("div");
+                                const superchatHeaderLeftElement = document.createElement("span");
+                                const superchatHeaderRightElement = document.createElement("span");
                                 const preElement = document.createElement("div");
                                 superchatElement.setAttribute("class", `${superchatTier(index)} superchat-card`);
                                 superchatHeaderElement.setAttribute("class", `header`);
+                                superchatHeaderLeftElement.setAttribute("class", `left`);
+                                superchatHeaderRightElement.setAttribute("class", `right copy`);
                                 preElement.setAttribute("class", `contents`);
-                                superchatHeaderElement.innerText = `#${SCIndex} $${dollarValue} \t (${message[0].length}/${limit[index]})`;
+                                superchatHeaderLeftElement.innerText = `#${SCIndex} (${message[0].length}/${limit[index]})`;
+                                superchatHeaderRightElement.innerText = `Copy`;
+                                superchatHeaderElement.innerText = `$${dollarValue}`;
                                 preElement.innerText = message[0];
+                                superchatHeaderElement.appendChild(superchatHeaderLeftElement);
+                                superchatHeaderElement.appendChild(superchatHeaderRightElement);
                                 superchatElement.appendChild(superchatHeaderElement);
                                 superchatElement.appendChild(preElement);
                                 fragment.appendChild(superchatElement);
@@ -226,6 +253,36 @@ function getSelectedSuperchatOptions() {
         }
     }
     return values;
+}
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        const successful = document.execCommand("copy");
+        const msg = successful ? "successful" : "unsuccessful";
+        console.log("Fallback: Copying text command was " + msg);
+    }
+    catch (err) {
+        console.error("Fallback: Oops, unable to copy", err);
+    }
+    document.body.removeChild(textArea);
+}
+function copyTextToClipboard(text) {
+    if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(function () {
+        console.log("Async: Copying to clipboard was successful!");
+    }, function (err) {
+        console.error("Async: Could not copy text: ", err);
+    });
 }
 function getSubsets(array, sum) {
     function fork(index = 0, s = 0, temp = []) {
